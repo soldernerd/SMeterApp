@@ -79,10 +79,6 @@ namespace SMeter
             PendingCommands = new List<UsbCommand>();
             PacketsToRequest = new List<byte>();
             PacketsToRequest.Add(0x10);
-            PacketsToRequest.Add(0x11);
-            PacketsToRequest.Add(0x12);
-            PacketsToRequest.Add(0x13);
-            PacketsToRequest.Add(0x14);
             WaitingForDevice = false;
             _NewDataAvailable = false;
 
@@ -133,16 +129,32 @@ namespace SMeter
             }
         }
 
+
         //Function to parse packet received over USB
+        /*
+    ToSendDataBuffer[1] = (uint8_t) os.adc_values[os.timeSlot&0b00001111]; //LSB
+    ToSendDataBuffer[2] = (uint8_t) (os.adc_values[os.timeSlot&0b00001111] >> 8); //MSB
+    ToSendDataBuffer[3] = (uint8_t) os.adc_sum; //LSB
+    ToSendDataBuffer[4] = (uint8_t) (os.adc_sum >> 8);
+    ToSendDataBuffer[5] = (uint8_t) (os.adc_sum >> 16);
+    ToSendDataBuffer[6] = (uint8_t) (os.adc_sum >> 24); //MSB
+    ToSendDataBuffer[7] = (uint8_t) os.db_value; //LSB
+    ToSendDataBuffer[8] = (uint8_t) (os.db_value >> 8);
+    ToSendDataBuffer[9] = os.s_value;
+    ToSendDataBuffer[10] = os.s_fraction;
+        */
         private void ParseData(ref UsbBuffer InBuffer)
         {
             //Input values are encoded as Int16
-            CurrentMeasurementAdc = (Int16)((InBuffer.buffer[3] << 8) + InBuffer.buffer[2]);
-            CurrentMeasurement = (Int16)((InBuffer.buffer[5] << 8) + InBuffer.buffer[4]);
+
+            //CurrentMeasurementAdc = (Int16)((InBuffer.buffer[3] << 8) + InBuffer.buffer[2]);
+            CurrentMeasurement = (Int16)((InBuffer.buffer[9] << 8) + InBuffer.buffer[8]);
+            /*
             for(int i=0; i<CalibrationValues.Length; ++i)
             {
                 CalibrationValues[i] = (Int16)((InBuffer.buffer[2*i+7] << 8) + InBuffer.buffer[2*i+6]);
             }
+            */
             //New status data is now available
             _NewDataAvailable = true;
         }
@@ -278,6 +290,7 @@ namespace SMeter
         public void ReceivePacketHandler(object sender, UsbBuffer InBuffer)
         {
             DebugString = "Start ReceivePacketHandler";
+            WaitingForDevice = true;
             InBuffer.RequestTransfer = WaitingForDevice;
             DebugString = "End ReceivePacketHandler";
         }

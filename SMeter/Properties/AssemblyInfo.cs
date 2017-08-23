@@ -10,9 +10,9 @@ using System.Windows;
 [assembly: AssemblyTitle("SMeter")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Bank Vontobel AG")]
+[assembly: AssemblyCompany("soldernerd.com")]
 [assembly: AssemblyProduct("SMeter")]
-[assembly: AssemblyCopyright("Copyright © Bank Vontobel AG 2017")]
+[assembly: AssemblyCopyright("soldernerd.com 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

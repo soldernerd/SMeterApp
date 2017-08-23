@@ -229,6 +229,8 @@ namespace SMeter
         {
             if (PropertyChanged != null)
             {
+                //WriteLog(communicator.DebugString, false);
+
                 if (communicator.NewDataAvailable)
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdc"));
@@ -474,7 +476,7 @@ namespace SMeter
         {
             get
             {
-                return string.Format("{0:0.0}dBm", communicator.CurrentMeasurement);
+                return string.Format("{0:0.00}dBm", 0.01 * (double) communicator.CurrentMeasurement);
             }
         }
 

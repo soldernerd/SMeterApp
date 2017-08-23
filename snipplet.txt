@@ -1,0 +1,58 @@
+        private Int16 Interpolate(Int16 value)
+        {
+            Int16[] calibration = new Int16[14];
+            calibration[0] = 300;
+            calibration[1] = 900;
+            calibration[2] = 1500;
+            calibration[3] = 2100;
+            calibration[4] = 2700;
+            calibration[5] = 3300;
+            calibration[6] = 3900;
+            calibration[7] = 4500;
+            calibration[8] = 5100;
+            calibration[9] = 5700;
+            calibration[10] = 6300;
+            calibration[11] = 6900;
+            calibration[12] = 7500;
+            calibration[13] = 8100;
+            if (value < calibration[0])
+            {
+                //Indicate an unterflow
+                return -32768;
+            }
+            for(Int16 i=0; i<13; ++i)
+            {
+                if(value<calibration[i+1])
+                {
+                    Int16 returnValue = -12000;
+                    returnValue += (Int16) (i * 1000);
+                    int tmp = 1000 * (value - calibration[i]);
+                    tmp /=  (calibration[i + 1] - calibration[i]);
+                    returnValue += (Int16) tmp;
+                    return returnValue;
+                }
+            }
+            //Indicate an overflow
+            return 32767;
+        }
+
+        private double db2w(Int16 value)
+        {
+            double exponent;
+            exponent = 0.001 * (double) (value-30);
+            return Math.Pow(10.0, exponent);
+        }
+
+        private double db2v(Int16 value)
+        {
+            double p = db2w(value);
+            return Math.Sqrt(50.0 * p);
+        }
+
+        private double db2s(Int16 value)
+        {
+            double s = (double) (value + 12000);
+            s /= 100.0;
+            s /= 6.0;
+            return 1.0 + s;
+        }

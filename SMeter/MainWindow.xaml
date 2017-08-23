@@ -19,9 +19,9 @@
 
     <Grid Width="Auto" HorizontalAlignment="Left" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150" />
-            <ColumnDefinition Width="150" />
-            <ColumnDefinition Width="150" />
+            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="180" />
+            <ColumnDefinition Width="180" />
 
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>

@@ -23,21 +23,69 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <GroupBox Header="Vid" Grid.Column="0" Grid.Row="0" Width="80" Height="45" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,10,10">
-            <TextBox Name="Vid_TextBox" 
-                Text="{Binding VidTxt, Mode=TwoWay, UpdateSourceTrigger=Explicit, Source={StaticResource CommunicatorVM}}" 
-                LostFocus="FocusLostHandler" KeyUp="KeyUpHander" IsEnabled="True" 
-                MaxLength="6" Background="WhiteSmoke" Width="60" Height="20"/>
-        </GroupBox>
-        <GroupBox Header="Pid" Grid.Column="1" Grid.Row="0" Width="80" Height="45" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,10,10">
-            <TextBox Name="Pid_TextBox" Text="{Binding PidTxt, Mode=TwoWay, UpdateSourceTrigger=Explicit, Source={StaticResource CommunicatorVM}}" 
-                LostFocus="FocusLostHandler" KeyUp="KeyUpHander" IsEnabled="True" 
-                MaxLength="6" Background="WhiteSmoke" Width="60" Height="20"/>
+        <GroupBox Header="Connection Parameters" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <Grid Margin="10,10,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <TextBlock Grid.Row="0" Grid.Column="0" Text="Vendor ID" VerticalAlignment="Center"/>
+                <TextBox Name="Vid_TextBox" Grid.Row="0" Grid.Column="1" 
+                    Text="{Binding VidTxt, Mode=TwoWay, UpdateSourceTrigger=Explicit, Source={StaticResource CommunicatorVM}}" 
+                    LostFocus="FocusLostHandler" KeyUp="KeyUpHander" IsEnabled="True" 
+                    MaxLength="6" Background="WhiteSmoke" Width="60" Height="20" VerticalAlignment="Center"/>
+                <TextBlock Grid.Row="0" Grid.Column="2" Text="Product ID" VerticalAlignment="Center"/>
+                <TextBox Name="Pid_TextBox" Grid.Row="0" Grid.Column="3" 
+                    Text="{Binding PidTxt, Mode=TwoWay, UpdateSourceTrigger=Explicit, Source={StaticResource CommunicatorVM}}" 
+                    LostFocus="FocusLostHandler" KeyUp="KeyUpHander" IsEnabled="True" 
+                    MaxLength="6" Background="WhiteSmoke" Width="60" Height="20" VerticalAlignment="Center"/>
+            </Grid>
         </GroupBox>
 
-        <GroupBox Header="Save / Discard" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="10,10,10,10">
+        <GroupBox Header="Display Brightness" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <Grid Margin="10,10,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Slider Name="Backlight_Slider" TickPlacement="None" Grid.Row="0" Grid.Column="0" 
+                        Minimum="0" Maximum="255" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding BacklightValue, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
+                <TextBox Name="Backlight_Textbox" Grid.Row="0" Grid.Column="1" Width="30" 
+                        Text="{Binding ElementName=Backlight_Slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="Display Contrast" Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <Grid Margin="10,10,10,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+                <Slider Name="Contrast_Slider" TickPlacement="None" Grid.Row="0" Grid.Column="0" 
+                        Minimum="0" Maximum="100" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"
+                        Value="{Binding ContrastValue, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
+                <TextBox Name="Contrast_Textbox" Grid.Row="0" Grid.Column="1" Width="30" 
+                        Text="{Binding ElementName=Contrast_Slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Header="Save / Discard" Grid.Column="0" Grid.Row="3" Grid.ColumnSpan="2" Margin="10,10,10,10">
             <Grid Margin="10,10,10,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="1*" />
