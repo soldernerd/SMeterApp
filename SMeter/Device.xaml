@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SMeter"
         mc:Ignorable="d"
-        Title="USB Device Configuration" 
+        Title="Device Configuration" 
         Closing="DeviceWindowClose"
         SizeToContent="WidthAndHeight"
         WindowState="Normal"
@@ -62,7 +62,7 @@
                 </Grid.RowDefinitions>
                 <Slider Name="Backlight_Slider" TickPlacement="None" Grid.Row="0" Grid.Column="0" 
                         Minimum="0" Maximum="255" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"
-                        Value="{Binding BacklightValue, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
+                        Value="{Binding DisplayBrightness, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
                 <TextBox Name="Backlight_Textbox" Grid.Row="0" Grid.Column="1" Width="30" 
                         Text="{Binding ElementName=Backlight_Slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>
@@ -79,7 +79,7 @@
                 </Grid.RowDefinitions>
                 <Slider Name="Contrast_Slider" TickPlacement="None" Grid.Row="0" Grid.Column="0" 
                         Minimum="0" Maximum="100" SmallChange="1" TickFrequency="1" IsSnapToTickEnabled="True"
-                        Value="{Binding ContrastValue, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
+                        Value="{Binding DisplayContrast, Mode=TwoWay, Source={StaticResource CommunicatorVM}}"/>
                 <TextBox Name="Contrast_Textbox" Grid.Row="0" Grid.Column="1" Width="30" 
                         Text="{Binding ElementName=Contrast_Slider, Path=Value, UpdateSourceTrigger=PropertyChanged}" />
             </Grid>

@@ -25,6 +25,8 @@ namespace SMeter
         public HidUtility HidUtil { get; set; }
         private ushort _Vid;
         private ushort _Pid;
+        private byte _DisplayBrightness;
+        private byte _DisplayContrast;
         public List<byte> PacketsToRequest { get; set; }
         private List<UsbCommand> PendingCommands;
         public uint TxCount { get; private set; }
@@ -52,6 +54,13 @@ namespace SMeter
                 {
                     this.data.Add(b);
                 }
+            }
+
+            public UsbCommand(byte command, byte value)
+            {
+                this.command = command;
+                this.data = new List<byte>();
+                this.data.Add(value);
             }
 
             public List<byte> GetByteList()
@@ -131,31 +140,12 @@ namespace SMeter
 
 
         //Function to parse packet received over USB
-        /*
-    ToSendDataBuffer[1] = (uint8_t) os.adc_values[os.timeSlot&0b00001111]; //LSB
-    ToSendDataBuffer[2] = (uint8_t) (os.adc_values[os.timeSlot&0b00001111] >> 8); //MSB
-    ToSendDataBuffer[3] = (uint8_t) os.adc_sum; //LSB
-    ToSendDataBuffer[4] = (uint8_t) (os.adc_sum >> 8);
-    ToSendDataBuffer[5] = (uint8_t) (os.adc_sum >> 16);
-    ToSendDataBuffer[6] = (uint8_t) (os.adc_sum >> 24); //MSB
-    ToSendDataBuffer[7] = (uint8_t) os.db_value; //LSB
-    ToSendDataBuffer[8] = (uint8_t) (os.db_value >> 8);
-    ToSendDataBuffer[9] = os.s_value;
-    ToSendDataBuffer[10] = os.s_fraction;
-        */
         private void ParseData(ref UsbBuffer InBuffer)
         {
-            //Input values are encoded as Int16
-
-            //CurrentMeasurementAdc = (Int16)((InBuffer.buffer[3] << 8) + InBuffer.buffer[2]);
+            //Input values are often encoded as Int16
             CurrentMeasurement = (Int16)((InBuffer.buffer[9] << 8) + InBuffer.buffer[8]);
-            /*
-            for(int i=0; i<CalibrationValues.Length; ++i)
-            {
-                CalibrationValues[i] = (Int16)((InBuffer.buffer[2*i+7] << 8) + InBuffer.buffer[2*i+6]);
-            }
-            */
-            //New status data is now available
+            _DisplayBrightness = (byte) InBuffer.buffer[12];
+            _DisplayContrast = (byte) InBuffer.buffer[13];
             _NewDataAvailable = true;
         }
 
@@ -191,6 +181,40 @@ namespace SMeter
                 {
                     _Pid = value;
                     HidUtil.SelectDevice(new Device(_Vid, _Pid));
+                }
+            }
+        }
+
+        // Accessor for _DisplayBrightness
+        public byte DisplayBrightness
+        {
+            get
+            {
+                return _DisplayBrightness;
+            }
+            set
+            {
+                if (value != _DisplayBrightness)
+                {
+                    _DisplayBrightness = value;
+                    ScheduleCommand(new UsbCommand(0x40, _DisplayBrightness));
+                }
+            }
+        }
+
+        // Accessor for _ContrastValue
+        public byte DisplayContrast
+        {
+            get
+            {
+                return _DisplayContrast;
+            }
+            set
+            {
+                if (value != _DisplayContrast)
+                {
+                    _DisplayContrast = value;
+                    ScheduleCommand(new UsbCommand(0x41, _DisplayContrast));
                 }
             }
         }

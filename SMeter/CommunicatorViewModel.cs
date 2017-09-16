@@ -32,6 +32,8 @@ namespace SMeter
         private Int16[] _calibration = new Int16[14];
         private ushort _Pid;
         private ushort _Vid;
+        private byte _DisplayBrightness = 0;
+        private byte _DisplayContrast = 0;
         private int _WindowPositionX;
         private int _WindowPositionY;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -89,7 +91,27 @@ namespace SMeter
  
         public void SavePidVid()
         {
-            if((_Pid != communicator.Pid) || (_Vid != communicator.Vid))
+            bool SomethingDone = false;
+
+            if (_DisplayBrightness != communicator.DisplayBrightness)
+            {
+                communicator.DisplayBrightness = _DisplayBrightness;
+                string log = string.Format("New display brightness saved and applied ({0})", _DisplayBrightness);
+                WriteLog(log, false);
+                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
+            }
+
+            if (_DisplayContrast != communicator.DisplayContrast)
+            {
+                communicator.DisplayContrast = _DisplayContrast;
+                string log = string.Format("New display contrast saved and applied ({0})", _DisplayContrast);
+                WriteLog(log, false);
+                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
+            }
+
+            if ((_Pid != communicator.Pid) || (_Vid != communicator.Vid) || (_DisplayBrightness != communicator.DisplayBrightness) || (_DisplayContrast != communicator.DisplayContrast))
             {
                 config.ProductId = _Pid;
                 config.VendorId = _Vid;
@@ -98,8 +120,10 @@ namespace SMeter
                 string log = string.Format("New PID/VID saved and applied (VID=0x{0:X4} PID=0x{1:X4})", _Vid, _Pid);
                 WriteLog(log, false);
                 PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
             }
-            else
+
+            if(!SomethingDone)
             {
                 WriteLog("Nothing to save", false);
                 PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
@@ -108,6 +132,26 @@ namespace SMeter
 
         public void ResetPidVid()
         {
+            bool SomethingDone = false;
+
+            if (_DisplayBrightness != communicator.DisplayBrightness)
+            {
+                _DisplayBrightness = communicator.DisplayBrightness;
+                PropertyChanged(this, new PropertyChangedEventArgs("DisplayBrightness"));
+                WriteLog("Display brightness reset", false);
+                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
+            }
+
+            if (_DisplayContrast != communicator.DisplayContrast)
+            {
+                _DisplayContrast = communicator.DisplayContrast;
+                PropertyChanged(this, new PropertyChangedEventArgs("DisplayContrast"));
+                WriteLog("Display contrast reset", false);
+                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
+            }
+
             if ((_Pid != communicator.Pid) || (_Vid != communicator.Vid))
             {
                 _Pid = communicator.Pid;
@@ -116,8 +160,10 @@ namespace SMeter
                 PropertyChanged(this, new PropertyChangedEventArgs("PidTxt"));
                 WriteLog("PID/VID reset", false);
                 PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
+                SomethingDone = true;
             }
-            else
+
+            if(!SomethingDone)
             {
                 WriteLog("Nothing to reset", false);
                 PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
@@ -158,8 +204,7 @@ namespace SMeter
                 if(_calibration[i] != communicator.CalibrationValues[i])
                 {
                     communicator.ScheduleCommand(new Communicator.UsbCommand(0x77, (byte)i, _calibration[i]));
-                }
-                    
+                }    
             }
             WriteLog("Calibration saved", false);
             if (PropertyChanged != null)
@@ -233,14 +278,21 @@ namespace SMeter
 
                 if (communicator.NewDataAvailable)
                 {
+                    if(_DisplayBrightness==0 || _DisplayContrast==0)
+                    {
+                        _DisplayBrightness = communicator.DisplayBrightness;
+                        _DisplayContrast = communicator.DisplayContrast;
+                    }
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdc"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurement"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementTxt"));
-                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementVTxt"));
-                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementPTxt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementVoltageTxt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementPowerTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementSTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("BarColor"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("DisplayBrightness"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("DisplayContrast"));
                 }
 
                 //Update these in any case
@@ -467,8 +519,7 @@ namespace SMeter
         {
             get
             {
-                return -15.3;
-                //return communicator.InputVoltage;
+                return 0.01 * (double) communicator.CurrentMeasurement;
             }
         }
 
@@ -476,7 +527,14 @@ namespace SMeter
         {
             get
             {
-                return string.Format("{0:0.00}dBm", 0.01 * (double) communicator.CurrentMeasurement);
+                if (communicator.HidUtil.ConnectionStatus != HidUtility.UsbConnectionStatus.Connected)
+                    return "No Device";
+                Int16 measurement = communicator.CurrentMeasurement;
+                if (measurement == Int16.MinValue)
+                    return "No Signal";
+                if (measurement == Int16.MaxValue)
+                    return "Overload";
+                return string.Format("{0:+0.00;-0.00;0.00}dBm", 0.01 * (double) measurement);
             }
         }
 
@@ -500,7 +558,21 @@ namespace SMeter
         {
             get
             {
-                return "0.123uV";
+                if (communicator.HidUtil.ConnectionStatus != HidUtility.UsbConnectionStatus.Connected)
+                    return "-";
+                if (communicator.CurrentMeasurement == Int16.MinValue)
+                    return "-";
+                double pwr = Math.Pow(10.0, 0.1 * CurrentMeasurement - 3.0);
+                double vltg = Math.Sqrt(50.0 * pwr);
+                if (vltg < 0.000000001)
+                    return string.Format("{0:0.000}pV", 1000000000000.0 * vltg);
+                if (vltg < 0.000001)
+                    return string.Format("{0:0.000}nV", 1000000000.0 * vltg);
+                if (vltg < 0.001)
+                    return string.Format("{0:0.000}\u03bcV", 1000000.0 * vltg); // \u03bc is unicode for a lower-case greek mu
+                if (vltg < 1.0)
+                    return string.Format("{0:0.000}mV", 1000.0 * vltg);
+                return string.Format("{0:0.000}V", vltg);
             }
         }
 
@@ -508,7 +580,22 @@ namespace SMeter
         {
             get
             {
-                return "8.74pW";
+                if (communicator.HidUtil.ConnectionStatus != HidUtility.UsbConnectionStatus.Connected)
+                    return "-";
+                if (communicator.CurrentMeasurement == Int16.MinValue)
+                    return "-";
+                double pwr = Math.Pow(10.0, 0.1*CurrentMeasurement-3.0);
+                if (pwr < 0.000000000001)
+                    return string.Format("{0:0.000}fW", 1000000000000000.0 * pwr);
+                if (pwr < 0.000000001)
+                    return string.Format("{0:0.000}pW", 1000000000000.0 * pwr);
+                if (pwr < 0.000001)
+                    return string.Format("{0:0.000}nW", 1000000000.0 * pwr);
+                if (pwr < 0.001)
+                    return string.Format("{0:0.000}\u03bcW", 1000000.0 * pwr); // \u03bc is unicode for a lower-case greek mu
+                if (pwr<1.0)
+                    return string.Format("{0:0.000}mW", 1000.0*pwr);
+                return string.Format("{0:0.000}W", pwr);
             }
         }
 
@@ -516,7 +603,25 @@ namespace SMeter
         {
             get
             {
-                return "S9+20";
+                if (communicator.HidUtil.ConnectionStatus != HidUtility.UsbConnectionStatus.Connected)
+                    return "-";
+                int measurement = communicator.CurrentMeasurement;
+                if (measurement == Int16.MinValue)
+                    return "-";
+                int temp = measurement + 12749;
+                int svalue = temp / 600;
+                int fraction = temp % 600;
+                fraction /= 100;
+                while (svalue>9)
+                {
+                    --svalue;
+                    fraction += 6;
+                }
+                
+                if(fraction==0)
+                    return string.Format("S{0:0}", svalue);
+                else
+                    return string.Format("S{0}+{1}", svalue.ToString(), fraction.ToString());
             }
         }
 
@@ -586,6 +691,19 @@ namespace SMeter
             {
                 _WindowPositionY = value;
             }
+        }
+
+        public byte DisplayBrightness
+        {
+            get { return _DisplayBrightness; }
+            set { _DisplayBrightness = value; }
+
+        }
+
+        public byte DisplayContrast
+        {
+            get { return _DisplayContrast; }
+            set { _DisplayContrast = value; }
         }
 
         public string Calibration00Txt

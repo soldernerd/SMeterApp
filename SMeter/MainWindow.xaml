@@ -37,7 +37,7 @@
                 <MenuItem Header="Activity Log" Name="MenuItem_ActivityLog" Click="ExpandCollapse"></MenuItem>
                 <MenuItem Header="Connection Details" Name="MenuItem_ConnectionDetail" Click="ExpandCollapse"></MenuItem>
             </MenuItem>
-            <MenuItem Header="Connection" Click="menu_window_device"/>
+            <MenuItem Header="Device" Click="menu_window_device"/>
             <MenuItem Header="Calibration" Click="menu_window_calibration"/>
             <MenuItem Header="_About"   Click="menu_window_about"/>
         </Menu>
@@ -57,22 +57,22 @@
             </Grid.RowDefinitions>
 
             <TextBlock Name="CurrentMeasurement_TextBlock" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="3"
-                 Background="White" Margin="10,10"
+                 Background="White" Margin="10,10, 40,10" HorizontalAlignment="Right"
                  FontFamily="Consolas Bold" FontWeight="ExtraBold" FontSize="90"
                  Text="{Binding CurrentMeasurementTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}" />
 
             <TextBlock Name="CurrentMeasurementV_TextBlock" Grid.Column="0" Grid.Row="1"
-                 Background="White" Margin="10,10"
+                 Background="White" Margin="10,10" HorizontalAlignment="Center"
                  FontFamily="Consolas Bold" FontWeight="ExtraBold" FontSize="20"
                  Text="{Binding CurrentMeasurementVoltageTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}" />
 
             <TextBlock Name="CurrentMeasurementP_TextBlock" Grid.Column="1" Grid.Row="1"
-                 Background="White" Margin="10,10"
+                 Background="White" Margin="10,10" HorizontalAlignment="Center"
                  FontFamily="Consolas Bold" FontWeight="ExtraBold" FontSize="20"
                  Text="{Binding CurrentMeasurementPowerTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}" />
 
             <TextBlock Name="CurrentMeasurementS_TextBlock" Grid.Column="2" Grid.Row="1"
-                 Background="White" Margin="10,10"
+                 Background="White" Margin="10,10" HorizontalAlignment="Center"
                  FontFamily="Consolas Bold" FontWeight="ExtraBold" FontSize="20"
                  Text="{Binding CurrentMeasurementSTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}" />
 

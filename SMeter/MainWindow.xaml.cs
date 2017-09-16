@@ -151,7 +151,7 @@ namespace SMeter
 
         private void menu_window_about(object sender, EventArgs e)
         {
-            MessageBox.Show("Lukas Fässler, 2017\n\nlfaessler@gmx.net\nVisit soldernerd.com for more information", "About S-Meter");
+            MessageBox.Show("Lukas Fässler, HB9TKO, 2017\n\nlfaessler@gmx.net\nVisit soldernerd.com for more information", "About S-Meter");
         }
 
         private void menu_window_device(object sender, EventArgs e)
