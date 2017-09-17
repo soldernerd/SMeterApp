@@ -27,6 +27,8 @@ namespace SMeter
         private ushort _Pid;
         private byte _DisplayBrightness;
         private byte _DisplayContrast;
+        public byte DisplaySavedBrightness { get; private set; }
+        public byte DisplaySavedContrast { get; private set; }
         public List<byte> PacketsToRequest { get; set; }
         private List<UsbCommand> PendingCommands;
         public uint TxCount { get; private set; }
@@ -45,6 +47,19 @@ namespace SMeter
             public byte command { get; set; }
             public List<byte> data { get; set; }
 
+            public UsbCommand(byte command)
+            {
+                this.command = command;
+                this.data = new List<byte>();
+            }
+
+            public UsbCommand(byte command, byte value)
+            {
+                this.command = command;
+                this.data = new List<byte>();
+                this.data.Add(value);
+            }
+
             public UsbCommand(byte command, byte index, Int16 value)
             {
                 this.command = command;
@@ -54,13 +69,6 @@ namespace SMeter
                 {
                     this.data.Add(b);
                 }
-            }
-
-            public UsbCommand(byte command, byte value)
-            {
-                this.command = command;
-                this.data = new List<byte>();
-                this.data.Add(value);
             }
 
             public List<byte> GetByteList()
@@ -146,6 +154,8 @@ namespace SMeter
             CurrentMeasurement = (Int16)((InBuffer.buffer[9] << 8) + InBuffer.buffer[8]);
             _DisplayBrightness = (byte) InBuffer.buffer[12];
             _DisplayContrast = (byte) InBuffer.buffer[13];
+            DisplaySavedBrightness = (byte)InBuffer.buffer[14];
+            DisplaySavedContrast = (byte)InBuffer.buffer[15];
             _NewDataAvailable = true;
         }
 
@@ -188,34 +198,23 @@ namespace SMeter
         // Accessor for _DisplayBrightness
         public byte DisplayBrightness
         {
-            get
-            {
-                return _DisplayBrightness;
-            }
+            get { return _DisplayBrightness; }
             set
             {
-                if (value != _DisplayBrightness)
-                {
-                    _DisplayBrightness = value;
-                    ScheduleCommand(new UsbCommand(0x40, _DisplayBrightness));
-                }
+                ScheduleCommand(new Communicator.UsbCommand(0x40, value));
+                _DisplayBrightness = value;
             }
+
         }
 
         // Accessor for _ContrastValue
         public byte DisplayContrast
         {
-            get
-            {
-                return _DisplayContrast;
-            }
+            get { return _DisplayContrast; }
             set
             {
-                if (value != _DisplayContrast)
-                {
-                    _DisplayContrast = value;
-                    ScheduleCommand(new UsbCommand(0x41, _DisplayContrast));
-                }
+                ScheduleCommand(new Communicator.UsbCommand(0x41, value));
+                _DisplayContrast = value;
             }
         }
 

@@ -17,8 +17,6 @@ using hid;
 
 namespace SMeter
 {
-
-
     /*
      *  The ViewModel 
      */
@@ -32,8 +30,8 @@ namespace SMeter
         private Int16[] _calibration = new Int16[14];
         private ushort _Pid;
         private ushort _Vid;
-        private byte _DisplayBrightness = 0;
-        private byte _DisplayContrast = 0;
+        //private byte _DisplayBrightness = 0;
+        //private byte _DisplayContrast = 0;
         private int _WindowPositionX;
         private int _WindowPositionY;
         public event PropertyChangedEventHandler PropertyChanged;
@@ -91,27 +89,10 @@ namespace SMeter
  
         public void SavePidVid()
         {
-            bool SomethingDone = false;
+            communicator.ScheduleCommand(new Communicator.UsbCommand(0x30));
+            WriteLog("Brightness and contrast saved", false);
 
-            if (_DisplayBrightness != communicator.DisplayBrightness)
-            {
-                communicator.DisplayBrightness = _DisplayBrightness;
-                string log = string.Format("New display brightness saved and applied ({0})", _DisplayBrightness);
-                WriteLog(log, false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
-            }
-
-            if (_DisplayContrast != communicator.DisplayContrast)
-            {
-                communicator.DisplayContrast = _DisplayContrast;
-                string log = string.Format("New display contrast saved and applied ({0})", _DisplayContrast);
-                WriteLog(log, false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
-            }
-
-            if ((_Pid != communicator.Pid) || (_Vid != communicator.Vid) || (_DisplayBrightness != communicator.DisplayBrightness) || (_DisplayContrast != communicator.DisplayContrast))
+            if ((_Pid != communicator.Pid) || (_Vid != communicator.Vid))
             {
                 config.ProductId = _Pid;
                 config.VendorId = _Vid;
@@ -119,38 +100,18 @@ namespace SMeter
                 communicator.Vid = _Vid;
                 string log = string.Format("New PID/VID saved and applied (VID=0x{0:X4} PID=0x{1:X4})", _Vid, _Pid);
                 WriteLog(log, false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
             }
-
-            if(!SomethingDone)
-            {
-                WriteLog("Nothing to save", false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-            }
+            PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
         }
 
         public void ResetPidVid()
         {
-            bool SomethingDone = false;
-
-            if (_DisplayBrightness != communicator.DisplayBrightness)
-            {
-                _DisplayBrightness = communicator.DisplayBrightness;
-                PropertyChanged(this, new PropertyChangedEventArgs("DisplayBrightness"));
-                WriteLog("Display brightness reset", false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
-            }
-
-            if (_DisplayContrast != communicator.DisplayContrast)
-            {
-                _DisplayContrast = communicator.DisplayContrast;
-                PropertyChanged(this, new PropertyChangedEventArgs("DisplayContrast"));
-                WriteLog("Display contrast reset", false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
-            }
+            communicator.ScheduleCommand(new Communicator.UsbCommand(0x31));
+            DisplayBrightness = communicator.DisplaySavedBrightness;
+            DisplayContrast = communicator.DisplaySavedContrast;
+            PropertyChanged(this, new PropertyChangedEventArgs("DisplayBrightness"));
+            PropertyChanged(this, new PropertyChangedEventArgs("DisplayContrast"));
+            WriteLog("Brightness and contrast reset", false);
 
             if ((_Pid != communicator.Pid) || (_Vid != communicator.Vid))
             {
@@ -158,16 +119,9 @@ namespace SMeter
                 _Vid = communicator.Vid;
                 PropertyChanged(this, new PropertyChangedEventArgs("VidTxt"));
                 PropertyChanged(this, new PropertyChangedEventArgs("PidTxt"));
-                WriteLog("PID/VID reset", false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-                SomethingDone = true;
+                WriteLog("PID/VID reset", false); 
             }
-
-            if(!SomethingDone)
-            {
-                WriteLog("Nothing to reset", false);
-                PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
-            }
+            PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
         }
 
         public void ResetCalibration()
@@ -278,11 +232,6 @@ namespace SMeter
 
                 if (communicator.NewDataAvailable)
                 {
-                    if(_DisplayBrightness==0 || _DisplayContrast==0)
-                    {
-                        _DisplayBrightness = communicator.DisplayBrightness;
-                        _DisplayContrast = communicator.DisplayContrast;
-                    }
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdc"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurement"));
@@ -291,8 +240,6 @@ namespace SMeter
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementPowerTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementSTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("BarColor"));
-                    PropertyChanged(this, new PropertyChangedEventArgs("DisplayBrightness"));
-                    PropertyChanged(this, new PropertyChangedEventArgs("DisplayContrast"));
                 }
 
                 //Update these in any case
@@ -695,15 +642,14 @@ namespace SMeter
 
         public byte DisplayBrightness
         {
-            get { return _DisplayBrightness; }
-            set { _DisplayBrightness = value; }
-
+            get { return communicator.DisplayBrightness; }
+            set { communicator.DisplayBrightness = value; }
         }
 
         public byte DisplayContrast
         {
-            get { return _DisplayContrast; }
-            set { _DisplayContrast = value; }
+            get { return communicator.DisplayContrast; }
+            set { communicator.DisplayContrast = value; }
         }
 
         public string Calibration00Txt
