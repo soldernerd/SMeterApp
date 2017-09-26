@@ -12,7 +12,7 @@ using System.Windows.Input;
 using System.ComponentModel;
 using System.Windows.Threading;
 using ConfigurationFile;
-using hid;
+using HidUtilityNuget;
 
 
 namespace SMeter
@@ -27,7 +27,7 @@ namespace SMeter
         DispatcherTimer timer;
         private DateTime ConnectedTimestamp = DateTime.Now;
         public string ActivityLogTxt { get; private set; }
-        private Int16[] _calibration = new Int16[14];
+        private Int32[] _calibration = new Int32[14];
         private ushort _Pid;
         private ushort _Vid;
         //private byte _DisplayBrightness = 0;
@@ -157,7 +157,7 @@ namespace SMeter
             {
                 if(_calibration[i] != communicator.CalibrationValues[i])
                 {
-                    communicator.ScheduleCommand(new Communicator.UsbCommand(0x77, (byte)i, _calibration[i]));
+                    communicator.ScheduleCommand(new Communicator.UsbCommand(0x77, (byte)i, (short) _calibration[i]));
                 }    
             }
             WriteLog("Calibration saved", false);
@@ -234,12 +234,29 @@ namespace SMeter
                 {
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdc"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcTxt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcSum"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcSumTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurement"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementVoltageTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementPowerTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementSTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("BarColor"));
+
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration00Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration01Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration02Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration03Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration04Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration05Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration06Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration07Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration08Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration09Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration10Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration11Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration12Txt"));
+                    PropertyChanged(this, new PropertyChangedEventArgs("Calibration13Txt"));
                 }
 
                 //Update these in any case
@@ -501,6 +518,22 @@ namespace SMeter
             }
         }
 
+        public int CurrentMeasurementAdcSum
+        {
+            get
+            {
+                return communicator.CurrentMeasurementAdcSum;
+            }
+        }
+
+        public string CurrentMeasurementAdcSumTxt
+        {
+            get
+            {
+                return communicator.CurrentMeasurementAdcSum.ToString();
+            }
+        }
+
         public string CurrentMeasurementVoltageTxt
         {
             get
@@ -654,85 +687,85 @@ namespace SMeter
 
         public string Calibration00Txt
         {
-            get { return _calibration[0].ToString(); }
+            get { return communicator.CalibrationValues[0].ToString(); }
             set { _calibration[0] = Int16.Parse(value); }
         }
 
         public string Calibration01Txt
         {
-            get { return _calibration[1].ToString(); }
+            get { return communicator.CalibrationValues[1].ToString(); }
             set { _calibration[1] = Int16.Parse(value); }
         }
 
         public string Calibration02Txt
         {
-            get { return _calibration[2].ToString(); }
+            get { return communicator.CalibrationValues[2].ToString(); }
             set { _calibration[2] = Int16.Parse(value); }
         }
 
         public string Calibration03Txt
         {
-            get { return _calibration[3].ToString(); }
+            get { return communicator.CalibrationValues[3].ToString(); }
             set { _calibration[3] = Int16.Parse(value); }
         }
 
         public string Calibration04Txt
         {
-            get { return _calibration[4].ToString(); }
+            get { return communicator.CalibrationValues[4].ToString(); }
             set { _calibration[4] = Int16.Parse(value); }
         }
 
         public string Calibration05Txt
         {
-            get { return _calibration[5].ToString(); }
+            get { return communicator.CalibrationValues[5].ToString(); }
             set { _calibration[5] = Int16.Parse(value); }
         }
 
         public string Calibration06Txt
         {
-            get { return _calibration[6].ToString(); }
+            get { return communicator.CalibrationValues[6].ToString(); }
             set { _calibration[6] = Int16.Parse(value); }
         }
 
         public string Calibration07Txt
         {
-            get { return _calibration[7].ToString(); }
+            get { return communicator.CalibrationValues[7].ToString(); }
             set { _calibration[7] = Int16.Parse(value); }
         }
 
         public string Calibration08Txt
         {
-            get { return _calibration[8].ToString(); }
+            get { return communicator.CalibrationValues[8].ToString(); }
             set { _calibration[8] = Int16.Parse(value); }
         }
 
         public string Calibration09Txt
         {
-            get { return _calibration[9].ToString(); }
+            get { return communicator.CalibrationValues[9].ToString(); }
             set { _calibration[9] = Int16.Parse(value); }
         }
 
         public string Calibration10Txt
         {
-            get { return _calibration[10].ToString(); }
+            get { return communicator.CalibrationValues[10].ToString(); }
             set { _calibration[10] = Int16.Parse(value); }
         }
 
         public string Calibration11Txt
         {
-            get { return _calibration[11].ToString(); }
+            get { return communicator.CalibrationValues[11].ToString(); }
             set { _calibration[11] = Int16.Parse(value); }
         }
 
         public string Calibration12Txt
         {
-            get { return _calibration[12].ToString(); }
+            get { return communicator.CalibrationValues[12].ToString(); }
             set { _calibration[12] = Int16.Parse(value); }
         }
 
         public string Calibration13Txt
         {
-            get { return _calibration[13].ToString(); }
+            get { return communicator.CalibrationValues[13].ToString(); }
             set { _calibration[13] = Int16.Parse(value); }
         }
     }

@@ -11,7 +11,7 @@ using System.IO;
 using System.Windows.Input;
 using System.ComponentModel;
 using System.Windows.Threading;
-using hid;
+using HidUtilityNuget;
 
 
 namespace SMeter
@@ -38,8 +38,9 @@ namespace SMeter
         public bool WaitingForDevice { get; private set; }
         //Information obtained from the device
         public Int16 CurrentMeasurementAdc { get; private set; }
+        public Int32 CurrentMeasurementAdcSum { get; private set; }
         public Int16 CurrentMeasurement { get; private set; }
-        public Int16[] CalibrationValues { get; private set; } = new Int16[14];
+        public Int32[] CalibrationValues { get; private set; } = new Int32[14];
         public string DebugString { get; private set; }
 
         public class UsbCommand
@@ -151,11 +152,19 @@ namespace SMeter
         private void ParseData(ref UsbBuffer InBuffer)
         {
             //Input values are often encoded as Int16
+            CurrentMeasurementAdc = (Int16)((InBuffer.buffer[3] << 8) + InBuffer.buffer[2]);
+            CurrentMeasurementAdcSum = (Int32)((InBuffer.buffer[6] << 16) + (InBuffer.buffer[5] << 8) + InBuffer.buffer[4]);
             CurrentMeasurement = (Int16)((InBuffer.buffer[9] << 8) + InBuffer.buffer[8]);
             _DisplayBrightness = (byte) InBuffer.buffer[12];
             _DisplayContrast = (byte) InBuffer.buffer[13];
             DisplaySavedBrightness = (byte)InBuffer.buffer[14];
             DisplaySavedContrast = (byte)InBuffer.buffer[15];
+            //Calibration
+            for(int i=0; i<CalibrationValues.Length; ++i)
+            {
+                CalibrationValues[i] = (Int32)((InBuffer.buffer[3*i+24] << 16) + (InBuffer.buffer[3*i+23] << 8) + InBuffer.buffer[3*i+22]);
+            }
+            
             _NewDataAvailable = true;
         }
 

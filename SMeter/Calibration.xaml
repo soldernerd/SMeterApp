@@ -30,7 +30,7 @@
             </Grid.RowDefinitions>
 
             <GroupBox Header="Current ADC Value" Grid.Column="0" Grid.Row="0" Margin="10,10,10,10">
-                <TextBlock Margin="10,10,10,10" Text="{Binding CurrentMeasurementAdcTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}"/>  
+                <TextBlock Margin="10,10,10,10" Text="{Binding CurrentMeasurementAdcSumTxt, Mode=OneWay, Source={StaticResource CommunicatorVM}}"/>  
             </GroupBox>
 
             <GroupBox Header="Calibration" Grid.Column="0" Grid.Row="1" Margin="10,10,10,10">
