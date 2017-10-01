@@ -41,7 +41,10 @@ namespace SMeter
         public Int32 CurrentMeasurementAdcSum { get; private set; }
         public Int16 CurrentMeasurement { get; private set; }
         public Int32[] CalibrationValues { get; private set; } = new Int32[14];
+
         public string DebugString { get; private set; }
+
+
 
         public class UsbCommand
         {
@@ -61,15 +64,15 @@ namespace SMeter
                 this.data.Add(value);
             }
 
-            public UsbCommand(byte command, byte index, Int16 value)
+            public UsbCommand(byte command, byte index, Int32 value)
             {
                 this.command = command;
                 this.data = new List<byte>();
                 this.data.Add(index);
-                foreach (byte b in BitConverter.GetBytes(value))
-                {
-                    this.data.Add(b);
-                }
+                byte[] val_bytes = BitConverter.GetBytes(value);
+                this.data.Add(val_bytes[2]);
+                this.data.Add(val_bytes[1]);
+                this.data.Add(val_bytes[0]);
             }
 
             public List<byte> GetByteList()
@@ -147,6 +150,15 @@ namespace SMeter
             }
         }
 
+        private Int32 IntFromBytes(byte b1, byte b2, byte b3)
+        {
+            //b3 is the least significant byte
+            //the most significant byte b0 is assumed to be zero
+            byte[] byte_array = {b3, b2, b1, 0x00};
+            //byte[] byte_array = { 0x01, 0x23, 0x45, 0x67 };
+            return BitConverter.ToInt32(byte_array, 0);
+        }
+
 
         //Function to parse packet received over USB
         private void ParseData(ref UsbBuffer InBuffer)
@@ -162,7 +174,7 @@ namespace SMeter
             //Calibration
             for(int i=0; i<CalibrationValues.Length; ++i)
             {
-                CalibrationValues[i] = (Int32)((InBuffer.buffer[3*i+24] << 16) + (InBuffer.buffer[3*i+23] << 8) + InBuffer.buffer[3*i+22]);
+                CalibrationValues[i] = IntFromBytes(InBuffer.buffer[3 * i + 24], InBuffer.buffer[3 * i + 23], InBuffer.buffer[3 * i + 22]);
             }
             
             _NewDataAvailable = true;
@@ -225,6 +237,12 @@ namespace SMeter
                 ScheduleCommand(new Communicator.UsbCommand(0x41, value));
                 _DisplayContrast = value;
             }
+        }
+
+        public void SetCalibration(byte index, Int32 newValue)
+        {
+            UsbCommand cmd = new UsbCommand(0x60, index, newValue);
+            ScheduleCommand(cmd);
         }
 
         /*

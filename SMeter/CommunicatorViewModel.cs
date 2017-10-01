@@ -28,6 +28,7 @@ namespace SMeter
         private DateTime ConnectedTimestamp = DateTime.Now;
         public string ActivityLogTxt { get; private set; }
         private Int32[] _calibration = new Int32[14];
+        private bool[] _calibration_pending = new bool[14];
         private ushort _Pid;
         private ushort _Vid;
         //private byte _DisplayBrightness = 0;
@@ -129,6 +130,7 @@ namespace SMeter
             for(int i=0; i<_calibration.Length; ++i)
             {
                 _calibration[i] = communicator.CalibrationValues[i];
+                _calibration_pending[i] = false;
             }
             WriteLog("Calibration resetted", false);
             if (PropertyChanged != null)
@@ -151,32 +153,20 @@ namespace SMeter
             }
         }
 
-        public void SaveCalibration()
+        public  void SaveCalibration()
         {
-            for (int i = 0; i < _calibration.Length; ++i)
+            for (byte i = 0; i < _calibration.Length; ++i)
             {
-                if(_calibration[i] != communicator.CalibrationValues[i])
+                if(_calibration_pending[i])
                 {
-                    communicator.ScheduleCommand(new Communicator.UsbCommand(0x77, (byte)i, (short) _calibration[i]));
+                    communicator.SetCalibration(i, _calibration[i]);
+                    _calibration_pending[i] = false;
+                    WriteLog(string.Format("Calibration {0} set to {1}", i, _calibration[i]), false);
                 }    
             }
-            WriteLog("Calibration saved", false);
+            //WriteLog("Calibration saved", false);
             if (PropertyChanged != null)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration00Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration01Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration02Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration03Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration04Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration05Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration06Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration07Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration08Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration09Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration10Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration11Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration12Txt"));
-                PropertyChanged(this, new PropertyChangedEventArgs("Calibration13Txt"));
                 PropertyChanged(this, new PropertyChangedEventArgs("ActivityLogTxt"));
             }
         }
@@ -232,6 +222,16 @@ namespace SMeter
 
                 if (communicator.NewDataAvailable)
                 {
+                    for(int i=0; i<_calibration.Length; ++i)
+                    {
+                        if (!_calibration_pending[i])
+                        {
+                            _calibration[i] = communicator.CalibrationValues[i];
+                            //string s = string.Format("Calibration{{0:00}Txt", i);
+                            //PropertyChanged(this, new PropertyChangedEventArgs(s));
+                        }
+                    }
+
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdc"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementAdcSum"));
@@ -242,7 +242,7 @@ namespace SMeter
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementPowerTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("CurrentMeasurementSTxt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("BarColor"));
-
+                    /*
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration00Txt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration01Txt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration02Txt"));
@@ -257,6 +257,7 @@ namespace SMeter
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration11Txt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration12Txt"));
                     PropertyChanged(this, new PropertyChangedEventArgs("Calibration13Txt"));
+                    */
                 }
 
                 //Update these in any case
@@ -687,86 +688,142 @@ namespace SMeter
 
         public string Calibration00Txt
         {
-            get { return communicator.CalibrationValues[0].ToString(); }
-            set { _calibration[0] = Int16.Parse(value); }
+            get { return _calibration[0].ToString(); }
+            set
+            {
+                _calibration_pending[0] = true;
+                 _calibration[0] = Int32.Parse(value);
+            }
         }
 
         public string Calibration01Txt
         {
-            get { return communicator.CalibrationValues[1].ToString(); }
-            set { _calibration[1] = Int16.Parse(value); }
+            get { return _calibration[1].ToString(); }
+            set
+            {
+                _calibration_pending[1] = true;
+                _calibration[1] = Int32.Parse(value);
+            }
         }
 
         public string Calibration02Txt
         {
-            get { return communicator.CalibrationValues[2].ToString(); }
-            set { _calibration[2] = Int16.Parse(value); }
+            get { return _calibration[2].ToString(); }
+            set
+            {
+                _calibration_pending[2] = true;
+                _calibration[2] = Int32.Parse(value);
+            }
         }
 
         public string Calibration03Txt
         {
-            get { return communicator.CalibrationValues[3].ToString(); }
-            set { _calibration[3] = Int16.Parse(value); }
+            get { return _calibration[3].ToString(); }
+            set
+            {
+                _calibration_pending[3] = true;
+                _calibration[3] = Int32.Parse(value);
+            }
         }
 
         public string Calibration04Txt
         {
-            get { return communicator.CalibrationValues[4].ToString(); }
-            set { _calibration[4] = Int16.Parse(value); }
+            get { return _calibration[4].ToString(); }
+            set
+            {
+                _calibration_pending[4] = true;
+                _calibration[4] = Int32.Parse(value);
+            }
         }
 
         public string Calibration05Txt
         {
-            get { return communicator.CalibrationValues[5].ToString(); }
-            set { _calibration[5] = Int16.Parse(value); }
+            get { return _calibration[5].ToString(); }
+            set
+            {
+                _calibration_pending[5] = true;
+                _calibration[5] = Int32.Parse(value);
+            }
         }
 
         public string Calibration06Txt
         {
-            get { return communicator.CalibrationValues[6].ToString(); }
-            set { _calibration[6] = Int16.Parse(value); }
+            get { return _calibration[6].ToString(); }
+            set
+            {
+                _calibration_pending[6] = true;
+                _calibration[6] = Int32.Parse(value);
+            }
         }
 
         public string Calibration07Txt
         {
-            get { return communicator.CalibrationValues[7].ToString(); }
-            set { _calibration[7] = Int16.Parse(value); }
+            get { return _calibration[7].ToString(); }
+            set
+            {
+                _calibration_pending[7] = true;
+                _calibration[7] = Int32.Parse(value);
+            }
         }
 
         public string Calibration08Txt
         {
-            get { return communicator.CalibrationValues[8].ToString(); }
-            set { _calibration[8] = Int16.Parse(value); }
+            get { return _calibration[8].ToString(); }
+            set
+            {
+                _calibration_pending[8] = true;
+                _calibration[8] = Int32.Parse(value);
+            }
         }
 
         public string Calibration09Txt
         {
-            get { return communicator.CalibrationValues[9].ToString(); }
-            set { _calibration[9] = Int16.Parse(value); }
+            get { return _calibration[9].ToString(); }
+            set
+            {
+                _calibration_pending[9] = true;
+                _calibration[9] = Int32.Parse(value);
+            }
         }
 
         public string Calibration10Txt
         {
-            get { return communicator.CalibrationValues[10].ToString(); }
-            set { _calibration[10] = Int16.Parse(value); }
+            get { return _calibration[10].ToString(); }
+            set
+            {
+                _calibration_pending[10] = true;
+                _calibration[10] = Int32.Parse(value);
+            }
         }
 
         public string Calibration11Txt
         {
-            get { return communicator.CalibrationValues[11].ToString(); }
-            set { _calibration[11] = Int16.Parse(value); }
+            get { return _calibration[11].ToString(); }
+            set
+            {
+                _calibration_pending[11] = true;
+                _calibration[11] = Int32.Parse(value);
+            }
         }
 
         public string Calibration12Txt
         {
-            get { return communicator.CalibrationValues[12].ToString(); }
-            set { _calibration[12] = Int16.Parse(value); }
+            get { return _calibration[12].ToString(); }
+            set
+            {
+                _calibration_pending[12] = true;
+                _calibration[12] = Int32.Parse(value);
+            }
         }
 
         public string Calibration13Txt
         {
-            get { return communicator.CalibrationValues[13].ToString(); }
-            set { _calibration[13] = Int16.Parse(value); }
+            get { return _calibration[13].ToString(); }
+            set
+            {
+                _calibration_pending[13] = true;
+                _calibration[13] = Int32.Parse(value);
+            }
         }
     }
 
