@@ -63,6 +63,9 @@
     <Prefer32Bit>true</Prefer32Bit>
     <UseVSHostingProcess>true</UseVSHostingProcess>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>icon3.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="HidUtilityNuget, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86">
       <HintPath>..\packages\HidUtilityNuget.1.0.0\lib\net46\HidUtilityNuget.dll</HintPath>
@@ -145,6 +148,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icon256.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="icon3.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
